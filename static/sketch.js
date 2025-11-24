@@ -1,7 +1,12 @@
 // sketch.js
+
 let x = 100;
 let y = 100;
 let speed = 2;
+
+let photodiode;
+let controls;
+let user;
 
 function setup() {
   createCanvas(400, 400);
@@ -9,28 +14,32 @@ function setup() {
 
   // Log initial state
   wsLogger.log("init", { x, y });
+
+  photodiode = new Photodiode({size: 50}, width, height);
+  controls = new UnifiedControls(wsLogger);
+  user = new TaskControls(controls);
 }
 
 function draw() {
   background(220);
+  controls.update();
 
-  // Move circle with arrow keys
-  if (keyIsDown(LEFT_ARROW)) x -= speed;
-  if (keyIsDown(RIGHT_ARROW)) x += speed;
-  if (keyIsDown(UP_ARROW)) y -= speed;
-  if (keyIsDown(DOWN_ARROW)) y += speed;
+  // Can move circle with arrow keys, controller, or mouse
+  if (user.moveLeft) x -= speed;
+  else if (user.moveRight) x += speed;
 
   fill(0, 100, 200);
   ellipse(x, y, 30, 30);
 
   // batch positions every frame
   // wsLogger.log("position", { x, y }, true);
+
+  // Update and render photodiode (default: bottom left corner)
+  photodiode.update();
+  photodiode.render();
 }
 
-function keyPressed() {
-  wsLogger.log("keyPressed", { key: key }, true);
-}
-
-function keyReleased() {
-  wsLogger.log("keyReleased", { key: key }, true);
-}
+function keyPressed(event)  { controls.keyPressed(event); photodiode.trigger(); }
+function keyReleased(event) { controls.keyReleased(event); }
+function mousePressed(event){ controls.mousePressed(event); photodiode.trigger(); }
+function mouseReleased(event){ controls.mouseReleased(event); }

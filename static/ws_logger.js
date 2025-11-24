@@ -43,7 +43,7 @@ class WSLogger {
       type,
       t_wall: Date.now(),
       t_sketch: performance.now(),
-      ...payload
+      payload: payload
     };
 
     if (batchable) {
