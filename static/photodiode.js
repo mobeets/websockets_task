@@ -6,7 +6,7 @@ class Photodiode {
       y: undefined,
       size: 200,
       color: 'white',
-      default_duration: 100
+      default_duration: 100 // milliseconds
     };
     // Merge caller params on top of defaults
     const finalParams = { ...defaults, ...params };

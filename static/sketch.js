@@ -56,7 +56,7 @@ function draw() {
 
 // for discrete events that we want to timestamp
 function markEvent() {
-  photodiode.trigger();
+  photodiode.trigger(50);
   clickSound.play();
 }
 
