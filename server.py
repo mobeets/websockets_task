@@ -14,6 +14,7 @@ from datetime import datetime
 # ---------------------
 parser = argparse.ArgumentParser()
 parser.add_argument("--save_name", type=str, default="events", help="Name of saved JSON log file")
+parser.add_argument("--logdir", type=str, default="logs", help="Path to directory to which we will save data")
 parser.add_argument("--host", type=str, default="0.0.0.0", help="Server host")
 parser.add_argument("--port", type=int, default=8000, help="Server port")
 parser.add_argument("--no_reload", action="store_true", help="Disable auto-reload")
@@ -21,9 +22,14 @@ args, unknown = parser.parse_known_args() # ignore uvicorn args
 
 # Directory for logs
 SAVE_NAME = args.save_name
-LOG_DIR = "logs"
+LOG_DIR = args.logdir
 os.makedirs(LOG_DIR, exist_ok=True)
 LOG_FILE = os.path.join(LOG_DIR, f"{SAVE_NAME}.jsonl")
+if os.path.exists(LOG_FILE):
+    resp = input(f"{LOG_FILE} already exists. Overwrite? [y/N]: ").strip().lower()
+    if resp not in ("y", "yes"):
+        print("Aborting.")
+        exit(1)
 
 # ---------------------
 # FastAPI app
