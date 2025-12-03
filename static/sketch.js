@@ -2,11 +2,17 @@
 
 let x = 100;
 let y = 100;
+let diameter = 20;
 let speed = 2;
 
 let photodiode;
 let controls;
 let user;
+let clickSound;
+
+function preload() {
+  clickSound = new Audio('static/click.mp3');
+}
 
 function setup() {
   createCanvas(400, 400);
@@ -28,10 +34,19 @@ function draw() {
   if (user.moveLeft) x -= speed;
   else if (user.moveRight) x += speed;
 
-  fill(0, 100, 200);
-  ellipse(x, y, 30, 30);
+  // When user clicks, we log and call markEvent()
+  if (user.clicked) {
+    diameter = 50;
+    wsLogger.log("clicked", {x, y}, false, markEvent);
+  } else {
+    diameter = 0.95*diameter + 0.05*20;
+  }
 
-  // batch positions every frame
+  noStroke();
+  fill(0, 100, 200);
+  ellipse(x, y, diameter);
+
+  // batch positions every frame (warning: will make a big file!)
   // wsLogger.log("position", { x, y }, true);
 
   // Update and render photodiode (default: bottom left corner)
@@ -39,7 +54,14 @@ function draw() {
   photodiode.render();
 }
 
-function keyPressed(event)  { controls.keyPressed(event); photodiode.trigger(); }
+// for discrete events that we want to timestamp
+function markEvent() {
+  photodiode.trigger();
+  clickSound.play();
+}
+
+// hook up to universal controls
+function keyPressed(event)  { controls.keyPressed(event); }
 function keyReleased(event) { controls.keyReleased(event); }
-function mousePressed(event){ controls.mousePressed(event); photodiode.trigger(); }
+function mousePressed(event){ controls.mousePressed(event); }
 function mouseReleased(event){ controls.mouseReleased(event); }

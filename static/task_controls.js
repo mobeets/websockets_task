@@ -7,6 +7,10 @@ class TaskControls {
     return this.u.justPressedKey('p') || this.u.justPressedButton("START");
   }
 
+  get clicked() {
+    return this.u.justPressedMouse;
+  }
+
   get moveLeft() {
     const stick = this.u.leftStick();
     const d = this.u.dpad();

@@ -38,7 +38,8 @@ class WSLogger {
     };
   }
 
-  log(type, payload = {}, batchable = false) {
+  log(type, payload = {}, batchable = false, callback) {
+    // if batchable is false and callback is a function, we call the callback right after sending
     const evt = {
       type,
       t_wall: Date.now(),
@@ -52,6 +53,7 @@ class WSLogger {
       try {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
           this.socket.send(JSON.stringify(evt));
+          if (typeof callback === "function") callback();
         } else {
           this._enqueue(evt);
         }
