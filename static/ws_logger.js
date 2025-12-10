@@ -13,6 +13,14 @@ class WSLogger {
     this._startBatching();
   }
 
+  _generateFilename() {
+    const params = new URLSearchParams(window.location.search);
+    const subj = params.get("subject_id") || "unknown";
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const rand = Math.random().toString(36).slice(2, 6);
+    return `${subj}-${timestamp}-${rand}.jsonl`;
+  }
+
   connect() {
     try {
       this.socket = new WebSocket(this.url);
@@ -24,6 +32,15 @@ class WSLogger {
 
     this.socket.onopen = () => {
       console.log("WebSocket connected");
+
+      // Tell server what file to write to
+      const fname = this._generateFilename();
+      this.socket.send(JSON.stringify({
+        type: "set_filename",
+        filename: fname
+      }));
+      console.log("Sent filename:", fname);
+
       this.flushBuffer();
     };
 
@@ -46,6 +63,7 @@ class WSLogger {
       t_sketch: performance.now(),
       payload: payload
     };
+    console.log(evt);
 
     if (batchable) {
       this._enqueueBatch(evt);
@@ -68,6 +86,7 @@ class WSLogger {
   _enqueue(evt) {
     this.buffer.push(evt);
     if (this.buffer.length > this.maxBufferSize) {
+      console.error('Dropping logs due to maxBufferSize!');
       this.buffer.shift();
     }
   }
@@ -77,6 +96,7 @@ class WSLogger {
     this.batchQueue.push(evt);
     if (this.batchQueue.length > this.maxBufferSize) {
       // drop oldest batchable events
+      console.error('Dropping logs due to maxBufferSize!');
       this.batchQueue.shift();
     }
   }
