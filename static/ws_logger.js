@@ -8,6 +8,7 @@ class WSLogger {
     this.buffer = [];       // immediate events when WS down
     this.batchQueue = [];   // batched events
     this.batchInterval = batchInterval;
+    this.log_filename;
 
     this.connect();
     this._startBatching();
@@ -34,12 +35,12 @@ class WSLogger {
       console.log("WebSocket connected");
 
       // Tell server what file to write to
-      const fname = this._generateFilename();
+      this.log_filename = this._generateFilename();
       this.socket.send(JSON.stringify({
         type: "set_filename",
-        filename: fname
+        filename: this.log_filename
       }));
-      console.log("Sent filename:", fname);
+      console.log("Sent filename:", this.log_filename);
 
       this.flushBuffer();
     };

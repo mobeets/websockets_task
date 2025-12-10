@@ -1,4 +1,4 @@
-# uv run python server.py --save_name test
+# uv run python server.py
 
 import os
 import json
