@@ -41,7 +41,7 @@ app = FastAPI()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Mount subfolder static/ at /static
-app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static_assets")
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 
 # Serve your index.html at the root
 @app.get("/")
@@ -91,7 +91,21 @@ async def websocket_endpoint(websocket: WebSocket):
                 print("Received data before filename was set; ignoring")
                 continue
 
-            # 3) Append log entry
+            # 3) Save a complete JSON object to .json file
+            if obj.get("type") == "save_json":
+                contents = obj.get("contents", None)
+                if contents is None:
+                    print("Received save_json without contents")
+                    continue
+
+                # Replace .jsonl extension with .json
+                json_file = log_file.replace(".jsonl", ".json")
+                with open(json_file, "w") as f:
+                    f.write(contents)
+                print(f"[{client_id}] Saved JSON to {json_file}")
+                continue
+
+            # 4) Append log entry
             with open(log_file, "a") as f:
                 f.write(json.dumps(obj) + "\n")
 
